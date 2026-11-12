@@ -68,3 +68,9 @@ P.faceid='<path d="M7 3H5a2 2 0 0 0-2 2v2M17 3h2a2 2 0 0 1 2 2v2M7 21H5a2 2 0 0 
 P.mail='<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/>';
 P.whats='<path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3.2 3.2z"/><path d="M9 9.5c.3 2.3 2.2 4.3 4.6 4.8l1.2-1.3 1.8.8c-.2 1-1 1.7-2 1.7-3.6-.2-6.5-3.1-6.7-6.7 0-1 .7-1.8 1.7-2l.8 1.8z"/>';
 function icon(n,s,w){return `<svg viewBox="0 0 24 24" width="${s||20}" height="${s||20}" fill="none" stroke="currentColor" stroke-width="${w||1.7}" stroke-linecap="round" stroke-linejoin="round">${P[n]||''}</svg>`}
+P.scan='<path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>';
+P.stamp='<path d="M9 3h6l-1 6h2.5a2.5 2.5 0 0 1 2.5 2.5V14H5v-2.5A2.5 2.5 0 0 1 7.5 9H10z"/><path d="M5 17h14M7 21h10"/>';
+P.globe='<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>';
+P.insta='<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/>';
+P.torch='<path d="M8 3h8l-1 6H9zM9 9h6v11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z"/><path d="M12 13v3"/>';
+P.passport='<rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="10" r="3.2"/><path d="M8.8 10h6.4M12 6.8c1 1 1.4 2 1.4 3.2s-.4 2.2-1.4 3.2c-1-1-1.4-2-1.4-3.2s.4-2.2 1.4-3.2zM9 17h6"/>';

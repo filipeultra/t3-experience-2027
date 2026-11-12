@@ -14,7 +14,7 @@ const st={
   qs:[{t:'Como comissionar a equipe sem incentivar desconto?',a:'Marcos T. · Varejo',v:87,me:false},{t:'Funciona para serviço B2B ou só varejo?',a:'Anônimo',v:52,me:false},{t:'Qual o primeiro indicador para olhar?',a:'Renata S. · Saúde',v:31,me:false}],
   upv:new Set(), connected:new Set(), contacts:14, meetings:[], photos:false, hubSent:false,
   onb:{seg:'Tecnologia',busca:new Set(['Sócios / investidores','Clientes B2B']),fat:'1M a 5M'},
-  selfie:false, mapMode:'2d', mapFilter:'Tudo', route:null, sponsorLead:false, notifs:3, cadernoGen:false,
+  selfie:false, stamps:{vida:'09:12',costa:'09:20'}, leads:new Set(), mapMode:'2d', mapFilter:'Tudo', route:null, sponsorLead:false, notifs:3, cadernoGen:false,
   pay:JSON.parse(JSON.stringify(PAY))
 };
 
@@ -149,7 +149,7 @@ function finishOnb(){reset('home');curTab='home';updTab();setTimeout(()=>toast('
 S.home={tab:1,html:()=>{const ps=payStatus();const mine=SESS[0].filter(s=>st.saved.has(s.id)&&!s.live).slice(0,3);const sug=Object.entries(PEOPLE).slice(0,3);
  return `<div class="pad rv" style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 18px">
   <img src="img/logo-hub.png" style="height:26px">
-  <div style="display:flex;gap:8px"><button class="ib" onclick="notifs()">${I('bell')}${st.notifs?'<span class="dot"></span>':''}</button><button class="ib gd" onclick="present('ticket')">${I('ticket')}</button></div></div>
+  <div style="display:flex;gap:8px"><button class="ib" id="hscan" onclick="present('scan')">${I('scan')}</button><button class="ib" onclick="notifs()">${I('bell')}${st.notifs?'<span class="dot"></span>':''}</button><button class="ib gd" onclick="present('ticket')">${I('ticket')}</button></div></div>
  <div class="pad rv" style="margin-bottom:16px"><div class="t">Bom dia, Filipe · Dia 1</div><div class="h-l" style="margin-top:2px">Abertura acontecendo agora</div></div>
  <button class="hero lv rv press" onclick="present('live','s1')"><div class="in">
   <span class="live" style="background:rgba(0,0,0,.55);padding:6px 10px;border-radius:12px;backdrop-filter:blur(8px)">AO VIVO · PALCO LIGA</span>
@@ -161,11 +161,12 @@ S.home={tab:1,html:()=>{const ps=payStatus();const mine=SESS[0].filter(s=>st.sav
  <div class="pad">
   <div class="sec rv"><h3>Atalhos</h3></div>
   <div class="qa rv">
-   <button onclick="present('ticket')"><span>${I('qr',24)}</span>Ingresso</button>
+   <button class="qscan" onclick="present('scan')"><span>${I('scan',26)}</span>Escanear QR</button>
+   <button onclick="present('ticket')"><span>${I('ticket',24)}</span>Ingresso</button>
    <button onclick="go('pagamentos')"><span>${I('money',24)}${ps.c==='open'?'<i class="dot"></i>':''}</span>Pagamentos</button>
    <button onclick="present('cartao')"><span>${I('swap',24)}</span>Trocar cartão</button>
-   <button onclick="go('fotos')"><span>${I('image',24)}</span>Minhas fotos</button>
   </div>
+  ${passCard()}
   <div class="sec rv"><h3>Sua agenda hoje</h3><button onclick="st.mode='mine';tab('agenda')">Ver tudo</button></div>
   ${mine.map(s=>`<button class="card press rv" style="display:flex;gap:14px;padding:14px 16px;margin-bottom:10px;width:100%;text-align:left;align-items:center" onclick="go('session','${s.id}')"><div style="font:700 14px Montserrat;color:var(--gold);width:44px">${s.h}</div><div style="flex:1"><div class="h-s" style="font-size:14.5px">${s.t}</div><div class="t-s" style="margin-top:3px">${ROOMS[s.room]} · ${s.dur} min</div></div>${I('chev',16)}</button>`).join('')}
   <div class="sec rv"><h3>Pessoas para conhecer</h3><button onclick="tab('conexoes')">Ver todas</button></div>
@@ -244,30 +245,27 @@ function typeIn(el,txt,cb){let i=0;el.classList.add('typing');const iv=setInterv
 /* ---- mapa ---- */
 const RM={palco:[18,16,170,130],gestao:[200,16,142,62],vendas:[200,86,142,60],lounge:[18,162,80,70],cafe:[106,162,82,70],workshops:[200,162,142,110],estandes:[18,248,170,86]};
 const RT={palco:[[180,395],[194,380],[194,80],[188,80]],gestao:[[180,395],[194,380],[194,47],[206,47]],vendas:[[180,395],[194,380],[194,116],[206,116]],workshops:[[180,395],[194,380],[194,217],[206,217]],lounge:[[180,395],[194,380],[194,240],[58,240],[58,232]],cafe:[[180,395],[194,380],[194,240],[147,240],[147,232]],estandes:[[180,395],[194,380],[194,290],[188,290]],foyer:[[180,395],[180,360]]};
-const PINS=[{k:'Café',ic:'coffee',x:147,y:205,l:'Café'},{k:'Banheiros',ic:'wc',x:330,y:300,l:'Banheiros'},{k:'Banheiros',ic:'wc',x:40,y:350,l:'Banheiros'},{k:'Estandes',ic:'star',x:128,y:282,l:'Estande 12',big:1,fn:"sponsor()"},{k:'Estandes',ic:'star',x:52,y:282,l:'Estande 3'},{k:'Salas',ic:'help',x:290,y:360,l:'Atendimento'}];
+const PINS=[{k:'Café',ic:'coffee',x:147,y:205,l:'Café'},{k:'Banheiros',ic:'wc',x:330,y:300,l:'Banheiros'},{k:'Banheiros',ic:'wc',x:40,y:350,l:'Banheiros'},{k:'Salas',ic:'help',x:290,y:360,l:'Atendimento'}];
 S.mapa={tab:1,cls:'full',html:()=>{const r=st.route;return `<div class="mapwrap">
  <div class="plan ${st.mapMode==='3d'?'d3':''}"><div class="shell"></div>
   ${Object.entries(RM).map(([k,b])=>`<button class="room ${k==='palco'?'main':''} ${r===k&&k!=='palco'?'hl':''}" style="left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;height:${b[3]}px;${k==='estandes'?'align-items:flex-end;padding-bottom:6px':''}" onclick="roomSheet('${k}')">${ROOMS[k].toUpperCase()}</button>`).join('')}
   <div style="position:absolute;left:130px;top:350px;width:100px;height:40px;border:1px dashed #3a372f;border-radius:10px;display:flex;align-items:center;justify-content:center;font:600 9px Inter;color:#6a6a6e;letter-spacing:.1em">ENTRADA</div>
   ${r?`<svg class="route" viewBox="0 0 360 420" width="360" height="420"><path d="M${RT[r].map(p=>p.join(' ')).join(' L')}" fill="none" stroke="#D4C08E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
   <div class="me-dot" style="left:180px;top:400px"></div>
+  ${STANDS.map(sd=>{const ok=!!st.stamps[sd.id];const hide=!['Tudo','Estandes','Passaporte'].includes(st.mapFilter);const pass=st.mapFilter==='Passaporte';return `<button class="spin ${hide?'hide':''} ${pass&&ok?'ok':''} ${pass&&!ok?'todo':''}" style="left:${sd.x}px;top:${sd.y}px" onclick="standSheet('${sd.id}')"><span>${pass&&ok?I('check',14,2.6):sd.booth}</span></button>`}).join('')}
   ${PINS.map(p=>`<button class="mpin ${p.big?'big':''} ${st.mapFilter!=='Tudo'&&st.mapFilter!==p.k?'hide':''}" style="left:${p.x}px;top:${p.y}px" onclick="${p.fn||`toast('${p.l}','pin')`}"><span>${I(p.ic,p.big?17:13)}</span>${p.l}</button>`).join('')}
  </div></div>
  <div class="mtop"><div style="text-align:center;font:600 16px Inter;margin-bottom:12px" class="rv">Mapa do evento</div>
-  <div class="chips rv" style="margin:0 -16px;padding:0 16px">${[['Tudo'],['Banheiros','wc'],['Café','coffee'],['Estandes','star'],['Salas','door']].map(([k,ic])=>`<button class="chip ${st.mapFilter===k?'on':''}" onclick="st.mapFilter='${k}';refresh()">${ic?I(ic,14):''}${k}</button>`).join('')}</div></div>
+  <div class="chips rv" style="margin:0 -16px;padding:0 16px">${[['Tudo'],['Passaporte','passport'],['Estandes','star'],['Banheiros','wc'],['Café','coffee'],['Salas','door']].map(([k,ic])=>`<button class="chip ${st.mapFilter===k?'on':''}" onclick="st.mapFilter='${k}';refresh()">${ic?I(ic,14):''}${k}</button>`).join('')}</div></div>
  <div class="ctrl rv"><button class="${st.mapMode==='3d'?'on':''}" onclick="toggle3d(this)">${st.mapMode==='3d'?'2D':'3D'}</button><button onclick="toast('Camada de patrocinadores ativada','layers')">${I('layers',19)}</button><button style="color:var(--blue)" onclick="toast('Você está na entrada principal','locate')">${I('locate',19)}</button></div>
- ${r?`<div class="mcard"><div><div class="t-s">Rota até</div><div class="h-s" style="margin-top:2px">${ROOMS[r]} · ${r==='lounge'||r==='cafe'?'1':'2'} min a pé</div></div><button class="btn o sm" onclick="st.route=null;refresh()">Encerrar</button></div>`
+ ${st.mapFilter==='Passaporte'&&!r?`<div class="mcard"><div><div class="t-s">Seu passaporte</div><div class="h-s" style="margin-top:2px">${stampCount()} de ${STANDS.length} estandes carimbados</div></div><button class="btn g sm" onclick="present('scan')">${I('scan',16)}Escanear</button></div>`:r?`<div class="mcard"><div><div class="t-s">Rota até</div><div class="h-s" style="margin-top:2px">${ROOMS[r]} · ${r==='lounge'||r==='cafe'?'1':'2'} min a pé</div></div><button class="btn o sm" onclick="st.route=null;refresh()">Encerrar</button></div>`
   :`<div class="mcard"><div><div class="t-s">Próxima sessão salva · 10:30</div><div class="h-s" style="margin-top:2px">Sala Gestão · 2 min a pé</div></div><button class="btn g sm" onclick="routeTo('gestao')">Rota</button></div>`}`}};
 function toggle3d(b){st.mapMode=st.mapMode==='3d'?'2d':'3d';$('.plan',cur().el).classList.toggle('d3',st.mapMode==='3d');b.classList.toggle('on',st.mapMode==='3d');b.textContent=st.mapMode==='3d'?'2D':'3D'}
 function routeTo(room){st.route=room;refresh();const p=$('.route path');if(p){const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;p.style.animation='none';p.getBoundingClientRect();p.style.transition='stroke-dashoffset 1.2s cubic-bezier(.32,.72,0,1)';p.style.strokeDashoffset=0;setTimeout(()=>{p.style.transition='';p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.animation=''},1300)}}
 function roomSheet(k){const now=allSess().filter(s=>s.room===k).slice(0,2);sheet(`<div style="margin-top:14px" class="rv"><div class="t-s">Sala</div><div class="h-m">${ROOMS[k]}</div></div>
  ${now.map(s=>`<button class="card rv press" style="margin-top:12px;padding:14px 16px;width:100%;text-align:left" onclick="closeSheet();setTimeout(()=>go('session','${s.id}'),300)"><div class="t-s">${s.h} · ${s.dur} min</div><div class="h-s" style="font-size:14.5px;margin-top:4px">${s.t}</div></button>`).join('')}
  <button class="btn g rv" style="margin-top:16px" onclick="closeSheet();routeTo('${k}')">${I('pin',18)}Traçar rota</button>`)}
-function sponsor(){sheet(`<div style="display:flex;gap:14px;align-items:center;margin-top:18px" class="rv"><div style="width:56px;height:56px;border-radius:16px;background:#0f2238;color:#cfe0f3;display:flex;align-items:center;justify-content:center;font:800 12px Montserrat">AGRO</div><div style="flex:1"><div class="t-s">Patrocinador Ouro · Estande 12</div><div class="h-m">Agro Norte Máquinas</div></div></div>
- <div class="card rv" style="margin-top:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;border-color:rgba(212,192,142,.3)"><span class="gold">${I('gift')}</span><div style="flex:1"><div class="h-s" style="font-size:14px">Oferta exclusiva do evento</div><div class="t-s">Diagnóstico de frota grátis para participantes</div></div></div>
- <div class="card rv" style="margin-top:10px;padding:14px 16px;display:flex;gap:12px;align-items:center"><span class="gold">${I('trophy')}</span><div style="flex:1"><div class="h-s" style="font-size:14px">Missão da Liga · +50 pts</div><div class="t-s">Visitar estandes · ${st.est} de 5</div></div></div>
- <div class="rv" style="display:flex;gap:10px;margin-top:18px"><button class="btn ${st.sponsorLead?'o':'o'}" style="flex:1" onclick="lead(this)">${st.sponsorLead?I('check',18,2)+'Contato enviado':'Deixar contato'}</button><button class="btn g" style="flex:1" onclick="closeSheet();routeTo('estandes')">${I('pin',18)}Ir até lá</button></div>`)}
-function lead(b){if(st.sponsorLead)return;st.sponsorLead=true;st.est++;st.pts+=50;b.innerHTML=I('check',18,2)+'Contato enviado';toast('Contato enviado · <span class="gold">+50 pts</span>','trophy')}
+function sponsor(){standSheet('agro')}
 
 /* ---- ingresso e pagamentos ---- */
 S.ticket={html:()=>{const ps=payStatus();return `${closebar('Meu ingresso',`<button class="ib" onclick="toast('Ingresso compartilhado','share')">${I('share')}</button>`)}
@@ -382,6 +380,7 @@ S.voce={tab:1,html:()=>{const ps=payStatus();return `<div class="pad"><div class
  <div class="card rv" style="margin-top:14px">
   <button class="li" onclick="present('ticket')">${I('ticket',20)}<span>Meu ingresso</span>${I('chev',16)}</button><div class="hr"></div>
   <button class="li" onclick="go('pagamentos')">${I('money',20)}<span>Pagamentos</span><span class="bdg badge ${ps.c}">${ps.t}</span>${I('chev',16)}</button><div class="hr"></div>
+  <button class="li" onclick="go('passaporte')">${I('passport',20)}<span>Meu passaporte</span><span class="bdg badge paid">${stampCount()}/${STANDS.length}</span>${I('chev',16)}</button><div class="hr"></div>
   <button class="li" onclick="go('liga')">${I('trophy',20)}<span>Liga T3 e missões</span>${I('chev',16)}</button><div class="hr"></div>
   <button class="li" onclick="go('fotos')">${I('image',20)}<span>Minhas fotos</span>${I('chev',16)}</button><div class="hr"></div>
   <button class="li" onclick="go('caderno')">${I('note',20)}<span>Meu caderno</span>${I('chev',16)}</button><div class="hr"></div>
@@ -401,7 +400,7 @@ S.liga={html:()=>{const list=MISSIONS.filter(m=>!m.hidden);const lvl=st.pts>=100
   <div class="prog" style="margin-top:16px;height:6px;background:rgba(255,255,255,.1)"><i id="pb" style="width:0" data-w="${Math.min(100,st.pts/goal*100)}"></i></div>
   <div class="t-s" style="margin-top:8px;color:#cfc6ae">Faltam ${goal-st.pts} pts para a <b style="color:var(--gold3)">Liga ${lvl==='Prata'?'Ouro':'Diamante'}</b> · prêmio: jantar com os palestrantes</div></div>
  <div class="pad"><div class="sec rv"><h3>Missões</h3><span class="t-s">${list.filter(m=>st.done.has(m.k)).length} de ${list.length}</span></div>
- <div class="card rv">${list.map((m,i)=>`${i?'<div class="hr"></div>':''}<div class="ms"><span class="ck ${st.done.has(m.k)?'d':''}">${st.done.has(m.k)?I('check',15,2.4):''}</span><div><div style="font-size:14px;${st.done.has(m.k)?'color:var(--mut);text-decoration:line-through':''}">${m.t}</div>${m.prog&&!st.done.has(m.k)?`<div class="t-s">${st.est} de 5</div>`:''}</div><span class="pts">+${m.p}</span></div>`).join('')}</div>
+ <div class="card rv">${list.map((m,i)=>`${i?'<div class="hr"></div>':''}<div class="ms"><span class="ck ${st.done.has(m.k)?'d':''}">${st.done.has(m.k)?I('check',15,2.4):''}</span><div><div style="font-size:14px;${st.done.has(m.k)?'color:var(--mut);text-decoration:line-through':''}">${m.t}</div>${m.prog&&!st.done.has(m.k)?`<div class="t-s">${Math.min(stampCount(),5)} de 5</div>`:''}</div><span class="pts">+${m.p}</span></div>`).join('')}</div>
  <div class="sec rv"><h3>Ranking ao vivo</h3><span class="t-s">aparece no telão</span></div>
  <div class="card rv" style="overflow:hidden">${RANK.map((r,i)=>`<div class="rk"><span class="p">${i+1}</span>${av(r[1],r[2],32,11)}<span>${r[0]}</span><span class="pt">${r[3]}</span></div>`).join('')}<div class="rk me"><span class="p">27</span>${av('FA',C.gold,32,11)}<span>Você</span><span class="pt gold">${st.pts}</span></div></div></div>`},
  init:(el,p,re)=>{if(re)return;const b=$('#pb',el);setTimeout(()=>{b.style.width=b.dataset.w+'%'},200);const n=$('#ptn',el);n.dataset.from=Math.max(0,st.pts-300);countUp(n,st.pts)}};
