@@ -17,6 +17,19 @@
 .chap span{transition:color .4s;display:flex;gap:10px;align-items:center;justify-content:flex-end}
 .chap span::after{content:"";width:8px;height:8px;border-radius:4px;background:currentColor}
 .chap span.on{color:var(--gold)}
+/* vertical (stories) */
+.vert .stage{align-items:flex-end;padding-bottom:230px}
+.vert .stage .side{display:block!important;left:72px;right:72px;top:210px;transform:none;max-width:none}
+.vert .stage .side img{height:62px}
+.vert .stage .side h1{font-size:68px;margin:24px 0 14px;line-height:1}
+.vert .stage .side p{font-size:27px;max-width:none;line-height:1.45;color:#b4b4b9}
+.vert .stage .rside{display:none!important;left:56px;right:56px;top:52px;transform:none;max-width:none}
+.vert .chap{flex-direction:row;gap:10px}
+.vert .chap span{flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.18);font-size:0;color:transparent;overflow:hidden;position:relative}
+.vert .chap span::after{display:none}
+.vert .chap span.dn{background:rgba(255,255,255,.75)}
+.vert .chap span.on{background:var(--gold)}
+.vert .device{transform-origin:bottom center}
 </style>
 </head>
 <body>
@@ -39,7 +52,7 @@
 <script>
 // legenda lateral (usada no vídeo)
 window.cap=(t,s)=>{const c=document.getElementById('cap');c.classList.add('swap');setTimeout(()=>{document.getElementById('capT').innerHTML=t;document.getElementById('capS').innerHTML=s;c.classList.remove('swap')},450)};
-window.chapters=(list,on)=>{document.getElementById('chap').innerHTML=list.map((x,i)=>`<span class="${i===on?'on':''}">${x}</span>`).join('')};
+window.chapters=(list,on)=>{document.getElementById('chap').innerHTML=list.map((x,i)=>`<span class="${i===on?'on':''} ${on>=0&&i<on?'dn':''}">${x}</span>`).join('')};
 </script>
 </body>
 </html>

@@ -432,7 +432,8 @@ function hubForm(){sheet(`<div class="h-m rv" style="margin:16px 0 4px">Candidat
 function boot(){
   app=$('#app');
   app.insertAdjacentHTML('beforeend',`<div class="sb"><span>9:41</span><div class="isl"></div><div class="r">${I('wifi',17,2)}<div class="bat"></div></div></div><nav class="tb hide"><span class="pill"></span>${TABS.map(([k,i,l])=>`<button onclick="tab('${k}')">${I(i)}<span>${l}</span></button>`).join('')}</nav><div class="home-ind"></div>`);
-  const fit=()=>{const d=$('.device');if(innerWidth<=520){d.style.transform='';return}const k=Math.min(DEMO?1.2:1.25,(innerHeight-(DEMO?40:60))/864);d.style.transform=`scale(${k})`};
+  const VERT=/v=1/.test(location.search);if(VERT)document.body.classList.add('vert');
+  const fit=()=>{const d=$('.device');if(innerWidth<=520&&!VERT){d.style.transform='';return}const k=VERT?Math.min((innerHeight-840)/864,(innerWidth-120)/390):Math.min(DEMO?1.2:1.25,(innerHeight-(DEMO?40:60))/864);d.style.transform=`scale(${k})`};
   addEventListener('resize',fit);fit();
   if(DEMO){document.body.classList.add('demo');const f=document.createElement('div');f.className='finger';app.appendChild(f);
     app.addEventListener('pointerdown',e=>{const r=app.getBoundingClientRect();const k=r.width/390;const x=(e.clientX-r.left)/k,y=(e.clientY-r.top)/k;const t=document.createElement('div');t.className='tapfx';t.style.left=x+'px';t.style.top=y+'px';app.appendChild(t);setTimeout(()=>t.remove(),800)},true);}
