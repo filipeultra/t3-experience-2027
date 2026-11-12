@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>T3 Experience 2027</title>
+<link rel="icon" href="img/logo-hub.png">
+<link rel="stylesheet" href="app.css">
+<style>
+.cap{transition:opacity .5s,transform .6s var(--ease)}
+.cap.swap{opacity:0;transform:translateY(12px)}
+.chap{display:flex;flex-direction:column;gap:12px;font:600 14px Inter;color:var(--mut2)}
+.chap span{transition:color .4s;display:flex;gap:10px;align-items:center;justify-content:flex-end}
+.chap span::after{content:"";width:8px;height:8px;border-radius:4px;background:currentColor}
+.chap span.on{color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="side">
+    <img src="img/logo.png" alt="T3 Hub">
+    <div class="cap" id="cap">
+      <h1 id="capT">T3 Experience<br><span class="gold">2027</span></h1>
+      <p id="capS">Protótipo navegável do app do evento. Clique em tudo: agenda, ao vivo, mapa, conexões, ingresso e pagamentos.</p>
+    </div>
+    <p class="hint" id="hint">No celular, abra este link e adicione à tela inicial.</p>
+  </div>
+  <div class="rside"><div class="chap" id="chap"></div></div>
+  <div class="device"><div class="app" id="app"></div></div>
+</div>
+<script src="icons.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+// legenda lateral (usada no vídeo)
+window.cap=(t,s)=>{const c=document.getElementById('cap');c.classList.add('swap');setTimeout(()=>{document.getElementById('capT').innerHTML=t;document.getElementById('capS').innerHTML=s;c.classList.remove('swap')},450)};
+window.chapters=(list,on)=>{document.getElementById('chap').innerHTML=list.map((x,i)=>`<span class="${i===on?'on':''}">${x}</span>`).join('')};
+</script>
+</body>
+</html>
